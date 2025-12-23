@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>צעצוע</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Arial;background:#f5f5f5;padding:20px}
+.card{background:#fff;padding:20px;border-radius:16px}
+.btn{
+  display:block;
+  margin-top:15px;
+  padding:14px;
+  background:#25d366;
+  color:white;
+  text-align:center;
+  border-radius:12px;
+  text-decoration:none;
+}
+</style>
+</head>
+<body>
+
+<a href="index.html">⬅ חזרה</a>
+<div id="toy">טוען…</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+const supabaseClient = supabase.createClient(
+  'https://zdawqdjmxtpgziggwjxa.supabase.co',
+  'YOUR_ANON_KEY'
+);
+
+const id=new URLSearchParams(location.search).get('id');
+
+async function load(){
+  const {data}=await supabaseClient.from('toys').select('*').eq('id',id).single();
+  const phone=data.phone.replace(/^0/,'');
+  const wa=`https://wa.me/972${phone}?text=שלום ראיתי את ${data.name}`;
+  toy.innerHTML=`
+    <div class="card">
+      <h2>${data.name}</h2>
+      ₪${data.price}<br>${data.city}
+      <a class="btn" href="${wa}" target="_blank">💬 WhatsApp</a>
+    </div>`;
+}
+load();
+</script>
+
+</body>
+</html>

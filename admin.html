@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>ניהול</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Arial;background:#f9fafb;padding:20px}
+.card{background:#fff;padding:16px;margin-bottom:12px;border-radius:14px}
+button{padding:8px 12px;border:none;border-radius:8px}
+.ok{background:#22c55e;color:white}
+.del{background:#ef4444;color:white}
+</style>
+</head>
+<body>
+
+<h2>🔐 ניהול מודעות</h2>
+<div id="list">טוען…</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+const supabaseClient = supabase.createClient(
+  'https://zdawqdjmxtpgziggwjxa.supabase.co',
+  'YOUR_ANON_KEY'
+);
+
+async function load(){
+  const {data}=await supabaseClient.from('toys').select('*').order('created_at',{ascending:false});
+  list.innerHTML='';
+  data.forEach(t=>{
+    list.innerHTML+=`
+      <div class="card">
+        <b>${t.name}</b> – ${t.status}<br>
+        <button class="ok" onclick="approve(${t.id})">✔</button>
+        <button class="del" onclick="remove(${t.id})">❌</button>
+      </div>`;
+  });
+}
+
+async function approve(id){
+  await supabaseClient.from('toys').update({status:'approved'}).eq('id',id);
+  load();
+}
+async function remove(id){
+  await supabaseClient.from('toys').delete().eq('id',id);
+  load();
+}
+load();
+</script>
+
+</body>
+</html>

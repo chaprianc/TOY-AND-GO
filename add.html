@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>פרסום צעצוע</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Arial;background:#ecfeff;padding:20px}
+input,select,button{
+  width:100%;
+  padding:14px;
+  margin-bottom:12px;
+  border-radius:12px;
+}
+button{
+  background:#22c55e;
+  color:white;
+  border:none;
+  font-size:18px;
+}
+</style>
+</head>
+<body>
+
+<a href="home.html">⬅ חזרה</a>
+<h2>➕ פרסום צעצוע</h2>
+
+<form id="form">
+<input id="name" placeholder="שם הצעצוע" required>
+<select id="category">
+<option value="">קטגוריה</option>
+<option>בובות</option>
+<option>רכבים</option>
+<option>משחקי קופסה</option>
+<option>אחר</option>
+</select>
+<select id="condition">
+<option value="">מצב</option>
+<option>כמו חדש</option>
+<option>טוב</option>
+<option>משומש</option>
+</select>
+<input id="price" type="number" placeholder="מחיר" required>
+<input id="city" placeholder="עיר" required>
+<input id="phone" placeholder="טלפון" required>
+<input id="image" type="file" accept="image/*" required>
+<button>שליחה לאישור</button>
+</form>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+const supabaseClient = supabase.createClient(
+  'https://zdawqdjmxtpgziggwjxa.supabase.co',
+  'YOUR_ANON_KEY'
+);
+
+form.onsubmit=async e=>{
+  e.preventDefault();
+  const file=image.files[0];
+  const nameFile=Date.now()+"_"+file.name;
+
+  await supabaseClient.storage.from('images').upload(nameFile,file);
+  const {data}=supabaseClient.storage.from('images').getPublicUrl(nameFile);
+
+  await supabaseClient.from('toys').insert([{
+    name:name.value,
+    category:category.value,
+    condition:condition.value,
+    price:price.value,
+    city:city.value,
+    phone:phone.value,
+    image_url:data.publicUrl
+  }]);
+
+  alert('נשלח לאישור');
+  location.href='index.html';
+}
+</script>
+
+</body>
+</html>
