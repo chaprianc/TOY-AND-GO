@@ -2,100 +2,165 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>🧸 צעצועים יד־שנייה</title>
+<title>צעצועים יד־שנייה</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body {
+body{
   font-family: Arial, sans-serif;
-  margin: 0;
-  min-height: 100vh;
-  background: linear-gradient(180deg,#fff7ed,#ffedd5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background:#f8fafc;
+  margin:0;
+  padding:0;
 }
 
-.container {
-  background: #fff;
-  padding: 32px 24px;
-  border-radius: 28px;
-  max-width: 420px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+/* HEADER */
+header{
+  position:sticky;
+  top:0;
+  background:#ffffff;
+  padding:14px 16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:1000;
+}
+header a{
+  text-decoration:none;
+  font-weight:bold;
+  color:#f97316;
 }
 
-.badge {
-  display: inline-block;
-  background: #fef3c7;
-  color: #92400e;
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 13px;
-  margin-bottom: 16px;
+/* GRID */
+.container{
+  padding:16px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:16px;
 }
 
-h1 {
-  margin: 0 0 12px;
-  font-size: 28px;
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  transition:transform .15s ease;
+}
+.card:hover{
+  transform:translateY(-3px);
 }
 
-.subtitle {
-  color: #555;
-  margin-bottom: 28px;
-  font-size: 15px;
+.card img{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+  background:#eee;
 }
 
-.btn {
-  display: block;
-  width: 100%;
-  padding: 18px;
-  font-size: 18px;
-  border-radius: 16px;
-  text-decoration: none;
-  font-weight: bold;
-  margin-bottom: 14px;
+.card-body{
+  padding:14px;
 }
 
-.primary {
-  background: linear-gradient(90deg,#fb923c,#f97316);
-  color: #fff;
+.card h3{
+  margin:0 0 6px;
+  font-size:18px;
 }
 
-.secondary {
-  border: 2px solid #fb923c;
-  color: #fb923c;
-  background: #fff;
+.price{
+  color:#16a34a;
+  font-size:20px;
+  font-weight:bold;
 }
 
-.footer {
-  margin-top: 16px;
-  font-size: 13px;
-  color: #777;
+.city{
+  font-size:14px;
+  color:#555;
+  margin:4px 0;
+}
+
+.status{
+  font-size:12px;
+  font-weight:bold;
+  margin-top:6px;
+}
+.pending{color:#f59e0b;}
+.approved{color:#16a34a;}
+
+.btn{
+  display:block;
+  margin-top:12px;
+  padding:12px;
+  text-align:center;
+  background:linear-gradient(90deg,#fb923c,#f97316);
+  color:white;
+  border-radius:14px;
+  text-decoration:none;
+  font-weight:bold;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <div class="badge">👶 קונים חכם, חוסכים בגדול</div>
+<header>
+  <a href="home.html">⬅ חזרה</a>
+  <a href="add.html">➕ פרסום</a>
+</header>
 
-  <h1>צעצועים יד־שנייה<br>להורים חכמים</h1>
-
-  <div class="subtitle">
-    קנו ומכרו צעצועים בקלות, במהירות<br>
-    ובקשר ישיר ב-WhatsApp
-  </div>
-
-  <a href="index.html" class="btn primary">🔍 חיפוש צעצועים</a>
-  <a href="add.html" class="btn secondary">➕ פרסום צעצוע</a>
-
-  <div class="footer">
-    ✔ בלי עמלות · ✔ בלי תיווך · ✔ פשוט
-  </div>
+<div class="container" id="list">
+  טוען צעצועים…
 </div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+const supabaseClient = supabase.createClient(
+  'https://zdawqdjmxtpgziggwjxa.supabase.co',
+  'YOUR_ANON_KEY'
+);
+
+async function loadToys(){
+  const { data, error } = await supabaseClient
+    .from('toys')
+    .select('*')
+    .in('status',['approved','pending'])
+    .order('created_at',{ascending:false});
+
+  const list=document.getElementById('list');
+  list.innerHTML='';
+
+  if(error){
+    list.innerText='שגיאה בטעינה';
+    return;
+  }
+
+  if(!data || data.length===0){
+    list.innerText='אין צעצועים עדיין';
+    return;
+  }
+
+  data.forEach(t=>{
+    const img = t.image_url || 'https://via.placeholder.com/400x300?text=Toy';
+
+    list.innerHTML+=`
+      <div class="card">
+        <img src="${img}">
+        <div class="card-body">
+          <h3>${t.name}</h3>
+          <div class="price">₪${t.price}</div>
+          <div class="city">${t.city}</div>
+          <div class="status ${t.status}">
+            ${t.status==='pending'?'⏳ ממתין לאישור':'✅ מאושר'}
+          </div>
+          <a class="btn" href="toy.html?id=${t.id}">לצפייה</a>
+        </div>
+      </div>
+    `;
+  });
+}
+
+loadToys();
+</script>
 
 </body>
 </html>
