@@ -48,13 +48,15 @@ form.onsubmit=async e=>{
   const {data}=supabaseClient.storage.from('images').getPublicUrl(fn);
 
   await supabaseClient.from('toys').insert([{
-    name:name.value,
-    category:category.value,
-    price:price.value,
-    city:city.value,
-    phone:phone.value,
-    image_url:data.publicUrl
-  }]);
+  name: name.value,
+  category: category.value,
+  price: price.value,
+  city: city.value,
+  phone: phone.value,
+  image_url: data.publicUrl,
+  status: 'pending'
+}]);
+
 
   alert('נשלח לאישור');
   location.href='home.html';
