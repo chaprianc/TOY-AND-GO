@@ -5,28 +5,39 @@
 <title>צעצוע</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body{font-family:Arial;background:#f5f5f5;padding:20px}
-.card{background:#fff;padding:20px;border-radius:16px}
+body{font-family:Arial;margin:0;background:#f8fafc}
+header{background:#fff;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.hero img{width:100%;height:260px;object-fit:cover}
+.card{
+  background:#fff;
+  margin:-40px 16px 16px;
+  padding:20px;
+  border-radius:24px;
+  box-shadow:0 10px 30px rgba(0,0,0,.1);
+}
+.price{font-size:28px;color:#16a34a;font-weight:bold}
 .btn{
   display:block;
-  margin-top:15px;
-  padding:14px;
+  margin-top:20px;
+  padding:18px;
   background:#25d366;
-  color:white;
+  color:#fff;
   text-align:center;
-  border-radius:12px;
+  border-radius:18px;
   text-decoration:none;
+  font-size:20px;
 }
 </style>
 </head>
 <body>
 
-<a href="index.html">⬅ חזרה</a>
-<div id="toy">טוען…</div>
+<header><a href="index.html">⬅ חזרה</a></header>
+<div class="hero"><img id="img"></div>
+<div class="card" id="content">טוען…</div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-const supabaseClient = supabase.createClient(
+const supabaseClient=supabase.createClient(
   'https://zdawqdjmxtpgziggwjxa.supabase.co',
   'YOUR_ANON_KEY'
 );
@@ -35,14 +46,15 @@ const id=new URLSearchParams(location.search).get('id');
 
 async function load(){
   const {data}=await supabaseClient.from('toys').select('*').eq('id',id).single();
+  img.src=data.image_url||'https://via.placeholder.com/600x400?text=Toy';
   const phone=data.phone.replace(/^0/,'');
-  const wa=`https://wa.me/972${phone}?text=שלום ראיתי את ${data.name}`;
-  toy.innerHTML=`
-    <div class="card">
-      <h2>${data.name}</h2>
-      ₪${data.price}<br>${data.city}
-      <a class="btn" href="${wa}" target="_blank">💬 WhatsApp</a>
-    </div>`;
+  content.innerHTML=`
+    <h2>${data.name}</h2>
+    <div class="price">₪${data.price}</div>
+    ${data.city}
+    <a class="btn" href="https://wa.me/972${phone}?text=שלום ראיתי את ${data.name}" target="_blank">
+      💬 WhatsApp
+    </a>`;
 }
 load();
 </script>

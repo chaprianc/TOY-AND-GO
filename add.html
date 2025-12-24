@@ -12,12 +12,7 @@ input,select,button{
   margin-bottom:12px;
   border-radius:12px;
 }
-button{
-  background:#22c55e;
-  color:white;
-  border:none;
-  font-size:18px;
-}
+button{background:#22c55e;color:#fff;font-size:18px;border:none}
 </style>
 </head>
 <body>
@@ -28,17 +23,7 @@ button{
 <form id="form">
 <input id="name" placeholder="שם הצעצוע" required>
 <select id="category">
-<option value="">קטגוריה</option>
-<option>בובות</option>
-<option>רכבים</option>
-<option>משחקי קופסה</option>
-<option>אחר</option>
-</select>
-<select id="condition">
-<option value="">מצב</option>
-<option>כמו חדש</option>
-<option>טוב</option>
-<option>משומש</option>
+<option>בובות</option><option>רכבים</option><option>משחקי קופסה</option><option>אחר</option>
 </select>
 <input id="price" type="number" placeholder="מחיר" required>
 <input id="city" placeholder="עיר" required>
@@ -49,23 +34,22 @@ button{
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-const supabaseClient = supabase.createClient(
+const supabaseClient=supabase.createClient(
   'https://zdawqdjmxtpgziggwjxa.supabase.co',
   'YOUR_ANON_KEY'
 );
 
 form.onsubmit=async e=>{
   e.preventDefault();
-  const file=image.files[0];
-  const nameFile=Date.now()+"_"+file.name;
+  const f=image.files[0];
+  const fn=Date.now()+"_"+f.name;
 
-  await supabaseClient.storage.from('images').upload(nameFile,file);
-  const {data}=supabaseClient.storage.from('images').getPublicUrl(nameFile);
+  await supabaseClient.storage.from('images').upload(fn,f);
+  const {data}=supabaseClient.storage.from('images').getPublicUrl(fn);
 
   await supabaseClient.from('toys').insert([{
     name:name.value,
     category:category.value,
-    condition:condition.value,
     price:price.value,
     city:city.value,
     phone:phone.value,
@@ -73,7 +57,7 @@ form.onsubmit=async e=>{
   }]);
 
   alert('נשלח לאישור');
-  location.href='index.html';
+  location.href='home.html';
 }
 </script>
 

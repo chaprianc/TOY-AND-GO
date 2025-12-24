@@ -2,105 +2,49 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>צעצועים יד־שנייה</title>
+<title>צעצועים</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f8fafc;
-  margin:0;
-  padding:0;
-}
-
-/* HEADER */
+body{font-family:Arial;margin:0;background:#f8fafc}
 header{
-  position:sticky;
-  top:0;
-  background:#ffffff;
-  padding:14px 16px;
-  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  background:#fff;
+  padding:14px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
-  z-index:1000;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
-header a{
-  text-decoration:none;
-  font-weight:bold;
-  color:#f97316;
-}
-
-/* GRID */
-.container{
+header a{text-decoration:none;font-weight:bold;color:#f97316}
+.filters{padding:12px;background:#fff}
+select{padding:10px;border-radius:10px;margin-left:8px}
+.grid{
   padding:16px;
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
   gap:16px;
 }
-
-/* CARD */
 .card{
   background:#fff;
   border-radius:22px;
   overflow:hidden;
   box-shadow:0 10px 25px rgba(0,0,0,.08);
-  transition:transform .15s ease;
+  transition:.2s;
 }
-.card:hover{
-  transform:translateY(-3px);
-}
-
-.card img{
-  width:100%;
-  height:200px;
-  object-fit:cover;
-  background:#eee;
-}
-
-.card-body{
-  padding:14px;
-}
-
-.card h3{
-  margin:0 0 6px;
-  font-size:18px;
-}
-
-.price{
-  color:#16a34a;
-  font-size:20px;
-  font-weight:bold;
-}
-
-.city{
-  font-size:14px;
-  color:#555;
-  margin:4px 0;
-}
-
-.status{
-  font-size:12px;
-  font-weight:bold;
-  margin-top:6px;
-}
-.pending{color:#f59e0b;}
-.approved{color:#16a34a;}
-
+.card:active{transform:scale(.97)}
+.card img{width:100%;height:200px;object-fit:cover}
+.card-body{padding:14px}
+.price{color:#16a34a;font-size:20px;font-weight:bold}
 .btn{
   display:block;
-  margin-top:12px;
+  margin-top:10px;
   padding:12px;
+  background:#f97316;
+  color:#fff;
   text-align:center;
-  background:linear-gradient(90deg,#fb923c,#f97316);
-  color:white;
   border-radius:14px;
   text-decoration:none;
-  font-weight:bold;
 }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -108,57 +52,48 @@ header a{
   <a href="add.html">➕ פרסום</a>
 </header>
 
-<div class="container" id="list">
-  טוען צעצועים…
+<div class="filters">
+  <select id="cityFilter" onchange="loadToys()">
+    <option value="">כל הערים</option>
+  </select>
 </div>
+
+<div class="grid" id="list">טוען…</div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-const supabaseClient = supabase.createClient(
+const supabaseClient=supabase.createClient(
   'https://zdawqdjmxtpgziggwjxa.supabase.co',
   'YOUR_ANON_KEY'
 );
 
 async function loadToys(){
-  const { data, error } = await supabaseClient
-    .from('toys')
-    .select('*')
-    .in('status',['approved','pending'])
-    .order('created_at',{ascending:false});
+  const city=cityFilter.value;
+  let q=supabaseClient.from('toys').select('*').eq('status','approved');
+  if(city) q=q.eq('city',city);
 
-  const list=document.getElementById('list');
+  const {data}=await q;
   list.innerHTML='';
-
-  if(error){
-    list.innerText='שגיאה בטעינה';
-    return;
-  }
-
-  if(!data || data.length===0){
-    list.innerText='אין צעצועים עדיין';
-    return;
-  }
+  const cities=new Set();
 
   data.forEach(t=>{
-    const img = t.image_url || 'https://via.placeholder.com/400x300?text=Toy';
-
+    cities.add(t.city);
+    const img=t.image_url||'https://via.placeholder.com/400x300?text=Toy';
     list.innerHTML+=`
       <div class="card">
         <img src="${img}">
         <div class="card-body">
-          <h3>${t.name}</h3>
+          <b>${t.name}</b>
           <div class="price">₪${t.price}</div>
-          <div class="city">${t.city}</div>
-          <div class="status ${t.status}">
-            ${t.status==='pending'?'⏳ ממתין לאישור':'✅ מאושר'}
-          </div>
+          ${t.city}
           <a class="btn" href="toy.html?id=${t.id}">לצפייה</a>
         </div>
-      </div>
-    `;
+      </div>`;
   });
-}
 
+  cityFilter.innerHTML='<option value="">כל הערים</option>';
+  cities.forEach(c=>cityFilter.innerHTML+=`<option>${c}</option>`);
+}
 loadToys();
 </script>
 
